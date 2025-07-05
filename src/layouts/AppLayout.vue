@@ -16,6 +16,5 @@ const sidebarVisible = ref(false)
     <main class="flex-1 p-4">
       <router-view />
     </main>
-    <AppFooter />
   </div>
 </template>

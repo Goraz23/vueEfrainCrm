@@ -1,6 +1,6 @@
 <template>
-  <Dialog v-model:visible="visible" :modal="true" :header="isEdit ? 'Editar usuario' : 'Nuevo usuario'" :style="{ width: '500px' }">
-    <Form :validation-schema="schema" :initial-values="initialValues" @submit="handleSubmit">
+  <Dialog v-model:visible="visible" modal header="Editar usuario" :style="{ width: '500px' }">
+    <Form @submit="handleSubmit" :validation-schema="schema" :initial-values="initialValues">
       <div class="mb-4">
         <label class="block mb-1">Nombre</label>
         <Field name="name" v-slot="{ field }">
@@ -25,17 +25,9 @@
         <ErrorMessage name="phone" class="text-red-500 text-sm mt-1" />
       </div>
 
-      <div class="mb-4" v-if="!isEdit">
-        <label class="block mb-1">Contraseña</label>
-        <Field name="password" v-slot="{ field }">
-          <Password v-model="field.value" toggleMask class="w-full" inputClass="w-full" autocomplete="new-password" />
-        </Field>
-        <ErrorMessage name="password" class="text-red-500 text-sm mt-1" />
-      </div>
-
       <div class="mb-6">
         <label class="block mb-1">Rol</label>
-        <Field name="role" v-slot="{ field, meta, handleChange }">
+        <Field name="role" v-slot="{ field, handleChange }">
           <Dropdown
             v-model="field.value"
             :options="roles"
@@ -62,11 +54,11 @@ import { Form, Field, ErrorMessage } from 'vee-validate'
 import * as yup from 'yup'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
-import Password from 'primevue/password'
 import Button from 'primevue/button'
 import Dropdown from 'primevue/dropdown'
 import axios from 'axios'
 
+// Props
 const props = defineProps({
   modelValue: Boolean,
   user: Object
@@ -75,48 +67,39 @@ const emit = defineEmits(['update:modelValue', 'refresh'])
 
 const visible = computed({
   get: () => props.modelValue,
-  set: val => emit('update:modelValue', val)
+  set: (val) => emit('update:modelValue', val)
 })
-
-const isEdit = computed(() => !!props.user?._id)
 
 const roles = [
   { label: 'Admin', value: 'admin' },
   { label: 'Usuario', value: 'user' }
 ]
 
+// Validación Yup (sin password)
 const schema = yup.object({
   name: yup.string().required('Nombre requerido'),
   email: yup.string().email('Correo inválido').required('Correo requerido'),
   phone: yup.string().required('Teléfono requerido'),
-  password: yup.string().min(6, 'Mínimo 6 caracteres').when([], {
-    is: () => !isEdit.value,
-    then: schema => schema.required('Contraseña requerida'),
-    otherwise: schema => schema.notRequired()
-  }),
   role: yup.string().required('Rol requerido')
 })
 
+// Valores iniciales para edición
 const initialValues = computed(() => ({
   name: props.user?.name || '',
   email: props.user?.email || '',
   phone: props.user?.phone || '',
-  password: '',
   role: props.user?.role || ''
 }))
 
+// Guardar cambios
 const handleSubmit = async (values, { resetForm }) => {
   try {
-    if (isEdit.value) {
-      await axios.put(`https://back-landing-dwi.onrender.com/api/users/update-user/${props.user._id}`, values)
-    } else {
-      await axios.post('https://back-landing-dwi.onrender.com/api/users/create-user', values)
-    }
+    await axios.put(`https://back-landing-dwi.onrender.com/api/users/update-user/${props.user._id}`, values)
     emit('refresh')
     visible.value = false
     resetForm()
   } catch (error) {
-    console.error('Error al guardar', error)
+    console.error('Error al editar', error)
   }
 }
 </script>
