@@ -8,6 +8,10 @@ const routes = [
     component: AppLayout,
     children: [
       {
+        path: '',
+        redirect: '/home'
+      },
+      {
         path: 'home',
         name: 'Home',
         component: () => import('@/views/HomeView.vue'),
@@ -42,7 +46,7 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !auth.user) {
     next('/login')
   } else if (to.path === '/login' && auth.user) {
-    next('/')
+    next('/home')
   } else {
     next()
   }
