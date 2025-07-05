@@ -1,22 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
+import AppLayout from '@/layouts/AppLayout.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: () => import('@/views/HomeView.vue'),
-    meta: { requirxesAuth: true }
+    component: AppLayout,
+    children: [
+      {
+        path: 'home',
+        name: 'Home',
+        component: () => import('@/views/HomeView.vue'),
+        meta: { requiresAuth: true }
+      },
+      {
+        path: ':pathMatch(.*)*',
+        name: 'NotFound',
+        component: () => import('@/views/NotFoundView.vue')
+      }
+    ]
   },
   {
     path: '/login',
     name: 'Login',
     component: () => import('@/views/LoginView.vue')
-  },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'NotFound',
-    component: () => import('@/views/NotFoundView.vue')
   }
 ]
 

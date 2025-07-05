@@ -5,12 +5,13 @@ import { createPinia } from 'pinia'
 import PrimeVue from 'primevue/config'
 
 // Estilos correctos (ahora sí existen)
-import 'primevue/resources/themes/lara-light-green/theme.css'
+// import '@primeuix/themes/primeuixtheme.css'
+// import '@primeuix/themes/dist/lara.css'
+import 'primevue/resources/themes/lara-light-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import 'primeflex/primeflex.css'
-
-import './assets/main.css'
+// import './assets/main.css'
 
 const app = createApp(App)
 app.use(router)
