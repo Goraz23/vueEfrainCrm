@@ -1,3 +1,31 @@
+<script setup>
+
+import { ref, computed } from 'vue'
+import { InputText } from 'primevue/inputtext'
+import { DataTable } from 'primevue/datatable'
+import { Column } from 'primevue/column'
+import { Button } from 'primevue/button'
+
+const search = ref('')
+
+const leads = ref([
+  { id: 1, name: 'Laura Hernández', email: 'laura@example.com', phone: '555-1234', date: '2025-06-20' },
+  { id: 2, name: 'Carlos Ruiz', email: 'carlos@example.com', phone: '555-5678', date: '2025-06-21' },
+  { id: 3, name: 'María Pérez', email: 'maria@example.com', phone: '555-9876', date: '2025-06-22' }
+])
+
+const filteredLeads = computed(() => {
+  if (!search.value) return leads.value
+  return leads.value.filter(lead =>
+    lead.name.toLowerCase().includes(search.value.toLowerCase()) ||
+    lead.email.toLowerCase().includes(search.value.toLowerCase())
+  )
+})
+
+const viewLead = (lead) => {
+  console.log('Ver lead:', lead)
+}
+</script>
 <template>
   <div class="py-6 px-4 flex justify-center bg-gray-50 min-h-screen">
     <div class="w-full" style="max-width: 1400px">
@@ -40,34 +68,7 @@
   </div>
 </template>
 
-<script setup>
 
-import { ref, computed } from 'vue'
-import { InputText } from 'primevue/inputtext'
-import { DataTable } from 'primevue/datatable'
-import { Column } from 'primevue/column'
-import { Button } from 'primevue/button'
-
-const search = ref('')
-
-const leads = ref([
-  { id: 1, name: 'Laura Hernández', email: 'laura@example.com', phone: '555-1234', date: '2025-06-20' },
-  { id: 2, name: 'Carlos Ruiz', email: 'carlos@example.com', phone: '555-5678', date: '2025-06-21' },
-  { id: 3, name: 'María Pérez', email: 'maria@example.com', phone: '555-9876', date: '2025-06-22' }
-])
-
-const filteredLeads = computed(() => {
-  if (!search.value) return leads.value
-  return leads.value.filter(lead =>
-    lead.name.toLowerCase().includes(search.value.toLowerCase()) ||
-    lead.email.toLowerCase().includes(search.value.toLowerCase())
-  )
-})
-
-const viewLead = (lead) => {
-  console.log('Ver lead:', lead)
-}
-</script>
 
 <style scoped>
 .dashboard-card {
