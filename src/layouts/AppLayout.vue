@@ -8,6 +8,8 @@ const sidebarVisible = ref(false)
 </script>
 
 <template>
+    <Toast />
+    <ConfirmDialog />
   <div class="min-h-screen flex flex-col">
     <AppTopbar @toggle-sidebar="sidebarVisible = true" />
     <AppSidebar :visible="sidebarVisible" @update:visible="sidebarVisible = $event" />

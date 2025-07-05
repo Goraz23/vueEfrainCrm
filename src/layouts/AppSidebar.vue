@@ -32,7 +32,7 @@ watch(visible, val => emit('update:visible', val))
 
 const router = useRouter()
 const routes = [
-  { label: "Inicio", icon: "pi pi-home", path: "/home" },
+  { label: "Inicio", icon: "pi pi-home", path: "/dashboard" },
   { label: "Usuarios", icon: "pi pi-users", path: "/usuarios" },
   { label: "Configuración", icon: "pi pi-cog", path: "/configuracion" }
 ]
