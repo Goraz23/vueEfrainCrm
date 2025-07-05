@@ -38,7 +38,7 @@ const password = ref('')
 const error = ref(false)
 
 const handleLogin = async () => {
-  const success = await auth.login(email.value, password.value)
+  const success = await auth.login({ email: email.value, password: password.value })
   if (success) {
     router.push('/dashboard')
   } else {

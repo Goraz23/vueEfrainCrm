@@ -3,50 +3,55 @@ import { defineStore } from 'pinia'
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
+    token: null,
     loaded: false
   }),
 
   actions: {
     loadUser() {
       const stored = localStorage.getItem('user')
-      if (stored) {
+      const token = localStorage.getItem('token')
+      if (stored && token) {
         try {
           this.user = JSON.parse(stored)
+          this.token = token
         } catch (e) {
           this.user = null
+          this.token = null
         }
       }
       this.loaded = true
     },
 
-    login(credentials) {
-      const hardcodedUser = {
-        email: 'admin@example.com',
-        password: '123456',
-        name: 'Admin User'
-      }
-
-      if (
-        credentials.email === hardcodedUser.email &&
-        credentials.password === hardcodedUser.password
-      ) {
-        const user = {
-          email: hardcodedUser.email,
-          name: hardcodedUser.name
-        }
-        this.user = user
-        localStorage.setItem('user', JSON.stringify(user))
-        this.loaded = true
-        return true
-      } else {
-        return false
-      }
-    },
+async login(credentials) {
+  try {
+    const res = await fetch('http://localhost:3000/api/users/authenticate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(credentials)
+    })
+    const data = await res.json()
+    if (data.status === 'success' && data.data?.token) {
+      this.user = data.data.user
+      this.token = data.data.token
+      localStorage.setItem('user', JSON.stringify(this.user))
+      localStorage.setItem('token', this.token)
+      this.loaded = true
+      return true
+    } else {
+      return false
+    }
+  } catch (e) {
+    return false
+  }
+},
 
     logout() {
       this.user = null
+      this.token = null
       this.loaded = false
       localStorage.removeItem('user')
+      localStorage.removeItem('token')
     }
   }
 })
