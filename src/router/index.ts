@@ -32,10 +32,13 @@ const router = createRouter({
   routes
 })
 
-// Protección de rutas
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
-  if (!auth.user) auth.loadUser()
+
+  if (!auth.loaded) {
+    await auth.loadUser()
+  }
+
   if (to.meta.requiresAuth && !auth.user) {
     next('/login')
   } else if (to.path === '/login' && auth.user) {
