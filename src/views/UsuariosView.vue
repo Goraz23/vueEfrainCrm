@@ -1,14 +1,13 @@
 <template>
   <div class="py-8 px-4 flex justify-center min-h-screen bg-gray-50">
     <div class="w-full max-w-screen-xl">
-      <div class="flex justify-between items-center mb-6">
+      <div class="flex justify-between items-center mb-6 gap-4">
         <h2 class="text-3xl font-bold text-black">Usuarios registrados</h2>
         <Button
           label="Agregar usuario"
           icon="pi pi-user-plus"
-          class="bg-blue-500 border-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
           @click="openAddUserForm"
-        />
+          />
       </div>
 
       <AddUserForm v-model="showAddForm" @refresh="fetchUsers" />

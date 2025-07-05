@@ -108,4 +108,6 @@ const handleSubmit = async (values, { resetForm }) => {
     console.error('Error al guardar usuario', error)
   }
 }
+
+emit('refresh')
 </script>

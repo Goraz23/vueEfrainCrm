@@ -6,18 +6,16 @@
       <!-- Grid de tarjetas resumen -->
       <div class="grid md:grid-cols-3 gap-6 mb-8">
         <!-- Leads totales -->
-        <div class="dashboard-card">
-          <RouterLink href="/leads">
+        <div class="dashboard-card cursor-pointer" @click="goTo('/leads')">
           <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-black">Leads acumulados</span>
             <i class="pi pi-users text-black text-xl" />
           </div>
           <div class="text-4xl font-bold text-black">{{ totalLeads }}</div>
-          </RouterLink>
         </div>
 
         <!-- Usuarios registrados -->
-        <div class="dashboard-card">
+        <div class="dashboard-card cursor-pointer" @click="goTo('/usuarios')">
           <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-black">Usuarios registrados</span>
             <i class="pi pi-user text-black text-xl" />
@@ -51,15 +49,46 @@
           <Chart type="doughnut" :data="doughnutData" :options="doughnutOptions" />
         </div>
       </div>
+
+      <!-- Formulario modal -->
+      <AddUserForm v-model="showAddUser" @refresh="fetchUsers" />
     </div>
   </div>
 </template>
 
 <script setup>
 import Chart from 'primevue/chart'
-
+import Button from 'primevue/button'
+import AddUserForm from '@/components/AddUserForm.vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
+import { useRouter } from 'vue-router'
+const showAddUser = ref(false)
 const totalLeads = 42
-const totalUsers = 5
+const totalUsers = ref(0)
+
+const fetchUsers = async () => {
+  try {
+    const response = await axios.get('https://back-landing-dwi.onrender.com/api/users/get-users')
+    console.log('Usuarios obtenidos:', response.data)
+    totalUsers.value = Array.isArray(response.data.data)
+      ? response.data.data.length
+      : 0
+  } catch (error) {
+    console.error('Error al obtener usuarios:', error)
+    totalUsers.value = 0
+  }
+}
+
+const router = useRouter()
+const goTo = (path) => {
+  router.push(path)
+}
+
+
+onMounted(() => {
+  fetchUsers()
+})
 
 const recentLeads = [
   { id: 1, name: 'Laura Hernández', email: 'laura@example.com' },
@@ -110,11 +139,11 @@ const doughnutOptions = {
     }
   }
 }
+
+
 </script>
 
 <style scoped>
-
-
 .dashboard-card {
   background: rgba(255, 255, 255, 0.688);
   backdrop-filter: blur(20px);
@@ -125,6 +154,7 @@ const doughnutOptions = {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
 }
+
 .dashboard-card:hover {
   transform: translateY(-4px);
 }
