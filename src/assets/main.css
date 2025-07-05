@@ -1,2 +1,24 @@
 @import './base.css';
 @import 'primeflex/primeflex.css';
+
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body #app {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #8ec5fc 100%);
+  background-repeat: no-repeat;
+}
+
+#app {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
