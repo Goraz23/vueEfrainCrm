@@ -9,11 +9,11 @@ const routes = [
     children: [
       {
         path: '',
-        redirect: '/home'
+        redirect: '/dashboard'
       },
       {
-        path: 'home',
-        name: 'Home',
+        path: 'dashboard',
+        name: 'Dashboard',
         component: () => import('@/views/HomeView.vue'),
         meta: { requiresAuth: true }
       },

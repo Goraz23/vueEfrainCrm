@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+const API_URL = import.meta.env.VITE_API_URL
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -25,7 +26,7 @@ export const useAuthStore = defineStore('auth', {
 
 async login(credentials) {
   try {
-    const res = await fetch('http://localhost:3000/api/users/authenticate', {
+    const res = await fetch(`${API_URL}/users/authenticate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
