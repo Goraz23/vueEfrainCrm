@@ -24,6 +24,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/store/auth'
+import { useToast } from 'primevue/usetoast'
 
 // PrimeVue
 import InputText from 'primevue/inputtext'
@@ -32,14 +33,15 @@ import Button from 'primevue/button'
 
 const router = useRouter()
 const auth = useAuthStore()
-
+const toast = useToast()
 const email = ref('')
 const password = ref('')
 const error = ref(false)
 
 const handleLogin = async () => {
-  const success = await auth.login(email.value, password.value)
+  const success = await auth.login({ email: email.value, password: password.value })
   if (success) {
+    toast.add({ severity: 'success', summary: 'Inicio de sesión exitoso', detail: 'Bienvenido al CRM', life: 3000 })
     router.push('/dashboard')
   } else {
     error.value = true

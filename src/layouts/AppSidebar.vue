@@ -1,7 +1,7 @@
 <template>
-  <Sidebar v-model:visible="visible" position="left" :showCloseIcon="true" style="width: 16rem;" @update:visible="$emit('update:visible', $event)">
+  <Sidebar v-model:visible="visible" position="left" :showCloseIcon="true" style="width: 16rem; " @update:visible="$emit('update:visible', $event)">
     <template #container="{ closeCallback }">
-      <div class="flex flex-column h-full">
+      <div class="flex flex-column h-full ">
         <!-- Aquí va tu menú, usando el arreglo de rutas -->
         <ul class="list-none p-3 m-0">
           <li v-for="item in items" :key="item.label">
@@ -32,7 +32,7 @@ watch(visible, val => emit('update:visible', val))
 
 const router = useRouter()
 const routes = [
-  { label: "Inicio", icon: "pi pi-home", path: "/home" },
+  { label: "Inicio", icon: "pi pi-home", path: "/dashboard" },
   { label: "Usuarios", icon: "pi pi-users", path: "/usuarios" },
   { label: "Configuración", icon: "pi pi-cog", path: "/configuracion" }
 ]
