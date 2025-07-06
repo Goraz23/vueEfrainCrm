@@ -9,6 +9,7 @@ import Tag from 'primevue/tag'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
 import ProgressSpinner from 'primevue/progressspinner'
+import Textarea from 'primevue/textarea'
 
 const search = ref('')
 const leads = ref([])
@@ -17,6 +18,11 @@ const selectedLead = ref(null)
 const showModal = ref(false)
 const loading = ref(false)
 const API_URL = import.meta.env.VITE_API_URL
+
+// Para el modal de contacto
+const showContactModal = ref(false)
+const contactLead = ref(null)
+const contactAnswer = ref('')
 
 const fetchLeads = async () => {
   try {
@@ -62,7 +68,18 @@ const startEditing = (lead) => {
   editingLeadId.value = lead._id
 }
 
-const handleStatusChange = async (lead, newStatus) => {
+// Nueva función para manejar el cambio del dropdown
+const onStatusChangeDropdown = (lead, newStatus) => {
+  if (newStatus === 'isContact') {
+    contactLead.value = lead
+    contactAnswer.value = ''
+    showContactModal.value = true
+  } else {
+    handleStatusChange(lead, newStatus)
+  }
+}
+
+const handleStatusChange = async (lead, newStatus, answer = 'Te estoy contactando, estos son los pasos...') => {
   if (!lead?._id) {
     console.error('❌ El ID del lead no está definido')
     return
@@ -74,16 +91,15 @@ const handleStatusChange = async (lead, newStatus) => {
     isDiscard: `${API_URL}/email/discard-email/${lead._id}`
   }
 
+  // Solo para isContact se envía el answer personalizado
   const endpoint = endpointMap[newStatus]
   const body = newStatus === 'isContact'
-    ? { answer: 'Te estoy contactando, estos son los pasos...' }
+    ? { answer }
     : {}
 
   try {
     console.log(`📤POST a: ${endpoint}`, body)
     const res = await axios.post(endpoint, body)
-
-    console.log(' Estado actualizado correctamente:', res.data)
 
     // Reflejar en UI
     lead.isNew = false
@@ -95,6 +111,14 @@ const handleStatusChange = async (lead, newStatus) => {
     console.error(' Error al actualizar estado:', error)
   } finally {
     editingLeadId.value = null
+  }
+}
+
+// Confirmar desde el modal
+const confirmContactStatus = async () => {
+  if (contactLead.value) {
+    await handleStatusChange(contactLead.value, 'isContact', contactAnswer.value)
+    showContactModal.value = false
   }
 }
 
@@ -153,7 +177,7 @@ const getSeverity = (status) => {
                     optionLabel="label"
                     optionValue="value"
                     :modelValue="getLeadStatus(data)"
-                    @update:modelValue="(val) => handleStatusChange(data, val)"
+                    @update:modelValue="(val) => onStatusChangeDropdown(data, val)"
                     class="w-full"
                   />
                   <Tag
@@ -179,6 +203,19 @@ const getSeverity = (status) => {
           </DataTable>
         </div>
       </div>
+
+      <!-- Modal para mensaje de contacto -->
+      <Dialog v-model:visible="showContactModal" modal header="Mensaje de contacto"
+              :style="{ width: '90vw', maxWidth: '500px' }">
+        <div>
+          <label class="block mb-2 font-semibold">Mensaje para el contacto:</label>
+          <Textarea v-model="contactAnswer" autoResize rows="4" class="w-full mb-4" />
+          <div class="flex justify-end gap-2">
+            <Button label="Cancelar" @click="showContactModal = false" />
+            <Button label="Enviar" severity="success" @click="confirmContactStatus" />
+          </div>
+        </div>
+      </Dialog>
 
       <Dialog v-model:visible="showModal" modal header="Detalles del Lead"
               :style="{ width: '90vw', maxWidth: '500px' }">

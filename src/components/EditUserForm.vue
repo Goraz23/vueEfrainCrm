@@ -58,6 +58,7 @@ import Button from 'primevue/button'
 import Dropdown from 'primevue/dropdown'
 import axios from 'axios'
 
+const API_URL = import.meta.env.VITE_API_URL
 // Props
 const props = defineProps({
   modelValue: Boolean,
@@ -94,7 +95,7 @@ const initialValues = computed(() => ({
 // Guardar cambios
 const handleSubmit = async (values, { resetForm }) => {
   try {
-    await axios.put(`https://back-landing-dwi.onrender.com/api/users/update-user/${props.user._id}`, values)
+    await axios.put(`${API_URL}/users/update-user/${props.user._id}`, values)
     emit('refresh')
     visible.value = false
     resetForm()

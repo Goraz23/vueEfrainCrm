@@ -106,6 +106,7 @@ const showAddForm = ref(false)
 const showEditForm = ref(false)
 const selectedUser = ref(null)
 const loading = ref(false)
+const API_URL = import.meta.env.VITE_API_URL
 
 const search = ref('')
 const rowsPerPage = 10
@@ -141,7 +142,7 @@ const openEditUser = (user) => {
 const fetchUsers = async () => {
   try {
     loading.value = true
-    const { data } = await axios.get('https://back-landing-dwi.onrender.com/api/users/get-users')
+    const { data } = await axios.get(`${API_URL}/users/get-users`)
     users.value = data.data || []
   } catch (error) {
     console.error('Error al obtener usuarios:', error)

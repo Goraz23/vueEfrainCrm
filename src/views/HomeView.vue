@@ -61,6 +61,7 @@ const showAddUser = ref(false)
 const totalLeads = ref(0)
 const totalUsers = ref(0)
 const recentLeads = ref([])
+const API_URL = import.meta.env.VITE_API_URL
 
 // Hacemos barData reactivo para que la gráfica se actualice
 const barData = ref({
@@ -135,7 +136,7 @@ const fetchLeads = async () => {
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('https://back-landing-dwi.onrender.com/api/users/get-users')
+    const response = await axios.get(`${API_URL}/users/get-users`)
     totalUsers.value = Array.isArray(response.data.data) ? response.data.data.length : 0
   } catch {
     totalUsers.value = 0

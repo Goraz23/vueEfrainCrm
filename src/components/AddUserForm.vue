@@ -100,7 +100,7 @@ const schema = yup.object({
 
 const handleSubmit = async (values, { resetForm }) => {
   try {
-    await axios.post('https://back-landing-dwi.onrender.com/api/users/create-user', values)
+    await axios.post(`${API_URL}/users/create-user`, values)
     emit('refresh')
     visible.value = false
     resetForm()
@@ -108,6 +108,8 @@ const handleSubmit = async (values, { resetForm }) => {
     console.error('Error al guardar usuario', error)
   }
 }
+
+const API_URL = import.meta.env.VITE_API_URL
 
 emit('refresh')
 </script>
