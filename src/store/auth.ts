@@ -24,28 +24,37 @@ export const useAuthStore = defineStore('auth', {
       this.loaded = true
     },
 
-async login(credentials) {
-  try {
-    const res = await fetch(`${API_URL}/users/authenticate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    })
-    const data = await res.json()
-    if (data.status === 'success' && data.data?.token) {
-      this.user = data.data.user
-      this.token = data.data.token
-      localStorage.setItem('user', JSON.stringify(this.user))
-      localStorage.setItem('token', this.token)
-      this.loaded = true
-      return true
-    } else {
-      return false
-    }
-  } catch (e) {
-    return false
-  }
-},
+    async login(credentials) {
+      try {
+        const res = await fetch(`${API_URL}/users/authenticate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(credentials)
+        })
+        const data = await res.json()
+        // console.log('Login response:', data)
+        if (
+          data.status === 'success' &&
+          data.data?.token &&
+          data.data?.user?.role === 'admin'
+        ) {
+          this.user = data.data.user
+          this.token = data.data.token
+          localStorage.setItem('user', JSON.stringify(this.user))
+          localStorage.setItem('token', this.token)
+          this.loaded = true
+          return true
+        } else {
+          this.user = null
+          this.token = null
+          localStorage.removeItem('user')
+          localStorage.removeItem('token')
+          return false
+        }
+      } catch (e) {
+        return false
+      }
+    },
 
     logout() {
       this.user = null

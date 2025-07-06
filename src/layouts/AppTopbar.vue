@@ -27,7 +27,7 @@ function handleLogout() {
     rejectLabel: 'No',
     accept: () => {
       auth.logout()
-      toast.add({ severity: 'success', summary: 'Sesión cerrada', detail: 'Has cerrado sesión correctamente', life: 3000 })
+      // toast.add({ severity: 'success', summary: 'Sesión cerrada', detail: 'Has cerrado sesión correctamente', life: 3000 })
       router.push('/login')
     }
   })

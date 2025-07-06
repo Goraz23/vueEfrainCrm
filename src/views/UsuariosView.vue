@@ -1,7 +1,7 @@
 <template>
   <div class="py-8 px-4 flex justify-center min-h-screen bg-gray-50">
     <div class="w-full max-w-screen-xl">
-      <div class="flex justify-between items-center mb-6 gap-4">
+      <div class="flex justify-content-between align-items-center mb-6 gap-4">
         <h2 class="text-3xl font-bold text-gray-800">Usuarios registrados</h2>
         <Button
           label="Agregar usuario"
@@ -22,7 +22,15 @@
       <AddUserForm v-model="showAddForm" @refresh="fetchUsers" />
       <EditUserForm v-model="showEditForm" :user="selectedUser" @refresh="fetchUsers" />
 
-      <div class="dashboard-card overflow-x-auto">
+      <ProgressSpinner
+        v-if="loading"
+        style="width: 50px; height: 50px; display: block; margin: 2rem auto;"
+        strokeWidth="4"
+        animationDuration=".8s"
+        aria-label="Cargando"
+      />
+
+      <div v-else class="dashboard-card overflow-x-auto">
         <table class="min-w-full">
           <thead class="bg-gray-100">
             <tr>
@@ -74,29 +82,44 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import Button from 'primevue/button'
 import Paginator from 'primevue/paginator'
 import InputText from 'primevue/inputtext'
+import ProgressSpinner from 'primevue/progressspinner'
 
 import AddUserForm from '@/components/AddUserForm.vue'
 import EditUserForm from '@/components/EditUserForm.vue'
+
+// Obtener el usuario autenticado desde localStorage (o tu store)
+const authUser = ref(null)
+try {
+  const stored = localStorage.getItem('user')
+  if (stored) authUser.value = JSON.parse(stored)
+} catch (e) {
+  authUser.value = null
+}
 
 const users = ref([])
 const showAddForm = ref(false)
 const showEditForm = ref(false)
 const selectedUser = ref(null)
+const loading = ref(false)
 
 const search = ref('')
 const rowsPerPage = 10
 const first = ref(0)
 
-// 🔍 Filtrado dinámico
+// 🔍 Filtrado dinámico (excluye el usuario autenticado)
 const filteredUsers = computed(() => {
-  if (!search.value.trim()) return users.value
+  let list = users.value
+  if (authUser.value && authUser.value._id) {
+    list = list.filter(user => user._id !== authUser.value._id)
+  }
+  if (!search.value.trim()) return list
   const query = search.value.toLowerCase()
-  return users.value.filter(user =>
+  return list.filter(user =>
     user.name?.toLowerCase().includes(query) ||
     user.email?.toLowerCase().includes(query)
   )
@@ -117,10 +140,13 @@ const openEditUser = (user) => {
 // 🔁 Obtener usuarios
 const fetchUsers = async () => {
   try {
+    loading.value = true
     const { data } = await axios.get('https://back-landing-dwi.onrender.com/api/users/get-users')
     users.value = data.data || []
   } catch (error) {
     console.error('Error al obtener usuarios:', error)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -132,7 +158,6 @@ const formatDate = (dateStr) => {
 
 onMounted(fetchUsers)
 </script>
-
 
 <style scoped>
 .dashboard-card {
@@ -157,5 +182,4 @@ table {
 th, td {
   white-space: nowrap;
 }
-
 </style>

@@ -72,17 +72,23 @@ const handleLogin = async () => {
   loading.value = true
   error.value = false
   const success = await auth.login({ email: email.value, password: password.value })
-  if (success) {
-    loading.value = false
+  loading.value = false
+  if (success && auth.user?.role === 'admin') {
+    router.push('/dashboard')
     toast.add({
       severity: 'success',
       summary: 'Inicio de sesión exitoso',
       detail: 'Bienvenido al sistema',
       life: 3000
     })
-    router.push('/dashboard')
   } else {
     error.value = true
+    toast.add({
+      severity: 'error',
+      summary: 'Acceso denegado',
+      detail: 'Solo los administradores pueden ingresar.',
+      life: 3000
+    })
   }
 }
 </script>

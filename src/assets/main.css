@@ -1,3 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.active-link {
+    background-color: #bdd6f8 !important;
+    color: #1e40af !important;
+    font-weight: 600 !important;
+    /* border-left: 4px solid #3b82f6 !important; */
+    border-radius: 15px !important;
+}

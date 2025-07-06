@@ -8,19 +8,25 @@ import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Dialog from 'primevue/dialog'
 import Dropdown from 'primevue/dropdown'
+import ProgressSpinner from 'primevue/progressspinner'
 
 const search = ref('')
 const leads = ref([])
 const editingLeadId = ref(null)
 const selectedLead = ref(null)
 const showModal = ref(false)
+const loading = ref(false)
+const API_URL = import.meta.env.VITE_API_URL
 
 const fetchLeads = async () => {
   try {
-    const res = await axios.get('https://back-landing-dwi.onrender.com/api/email/get-emails')
+    loading.value = true
+    const res = await axios.get(`${API_URL}/email/get-emails`)
     leads.value = res.data.data
   } catch (error) {
     console.error('Error al cargar leads:', error)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -63,9 +69,9 @@ const handleStatusChange = async (lead, newStatus) => {
   }
 
   const endpointMap = {
-    isNew: `https://api.landingcrm.store/api/email/is-new-contact-user/${lead._id}`,
-    isContact: `https://api.landingcrm.store/api/email/is-contact-user/${lead._id}`,
-    isDiscard: `https://api.landingcrm.store/api/email/discard-email/${lead._id}`
+    isNew: `${API_URL}/email/is-new-contact-user/${lead._id}`,
+    isContact: `${API_URL}/email/is-contact-user/${lead._id}`,
+    isDiscard: `${API_URL}/email/discard-email/${lead._id}`
   }
 
   const endpoint = endpointMap[newStatus]
@@ -92,7 +98,6 @@ const handleStatusChange = async (lead, newStatus) => {
   }
 }
 
-
 const getSeverity = (status) => {
   switch (status) {
     case 'isNew': return 'info'
@@ -105,7 +110,7 @@ const getSeverity = (status) => {
 
 <template>
   <div class="py-6 px-4 flex justify-center bg-gray-50 min-h-screen">
-    <div class="w-full" style="max-width: 1400px">
+    <div class="w-full max-w-full">
       <h2 class="text-2xl font-bold mb-6 text-gray-800">Leads acumulados</h2>
 
       <div class="dashboard-card">
@@ -113,46 +118,66 @@ const getSeverity = (status) => {
           <InputText v-model="search" placeholder="Buscar por nombre o correo" class="w-full md:w-1/3" />
         </div>
 
-        <DataTable :value="filteredLeads" paginator :rows="10"
-                   class="p-datatable-sm p-datatable-gridlines surface-card border-round shadow-2">
-          <Column field="name" header="Nombre" sortable />
-          <Column field="email" header="Correo electrónico" sortable />
-          <Column field="phone" header="Teléfono" />
-          <Column field="comentario" header="Comentario" />
-          <Column field="createdAt" header="Fecha" sortable>
-            <template #body="{ data }">
-              {{ new Date(data.createdAt).toLocaleDateString() }}
-            </template>
-          </Column>
-          <Column header="Estado">
-            <template #body="{ data }">
-              <div class="w-full md:w-40">
-                <Dropdown
-                  v-if="editingLeadId === data._id"
-                  :options="statusOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  :modelValue="getLeadStatus(data)"
-                  @update:modelValue="(val) => handleStatusChange(data, val)"
-                  class="w-full"
+        <ProgressSpinner
+          v-if="loading"
+          style="width: 50px; height: 50px; display: block; margin: 2rem auto;"
+          strokeWidth="4"
+          animationDuration=".8s"
+          aria-label="Cargando"
+        />
+
+        <div v-else class="overflow-x-auto rounded-2xl shadow w-full">
+          <DataTable
+            :value="filteredLeads"
+            paginator
+            :rows="10"
+            class="p-datatable-sm p-datatable-gridlines border-none w-full"
+            :rowClass="() => 'hover:bg-blue-50 transition-colors duration-150'"
+            style="min-width: 900px; width: 100%;"
+          >
+            <Column field="name" header="Nombre" sortable headerClass="sticky-header" />
+            <Column field="email" header="Correo electrónico" sortable headerClass="sticky-header" />
+            <Column field="phone" header="Teléfono" headerClass="sticky-header" />
+            <Column field="comentario" header="Comentario" headerClass="sticky-header" />
+            <Column field="createdAt" header="Fecha" sortable headerClass="sticky-header">
+              <template #body="{ data }">
+                {{ new Date(data.createdAt).toLocaleDateString() }}
+              </template>
+            </Column>
+            <Column header="Estado" headerClass="sticky-header">
+              <template #body="{ data }">
+                <div class="w-full md:w-40">
+                  <Dropdown
+                    v-if="editingLeadId === data._id"
+                    :options="statusOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    :modelValue="getLeadStatus(data)"
+                    @update:modelValue="(val) => handleStatusChange(data, val)"
+                    class="w-full"
+                  />
+                  <Tag
+                    v-else
+                    :value="statusOptions.find(opt => opt.value === getLeadStatus(data))?.label || 'Sin estado'"
+                    :severity="getSeverity(getLeadStatus(data))"
+                    class="cursor-pointer w-full text-center font-semibold"
+                    @click="startEditing(data)"
+                  />
+                </div>
+              </template>
+            </Column>
+            <Column header="Acciones" headerClass="sticky-header">
+              <template #body="slotProps">
+                <Button
+                  icon="pi pi-eye"
+                  class="p-button-rounded p-button-text p-button-sm text-blue-600 hover:bg-blue-100"
+                  @click="viewLead(slotProps.data)"
+                  v-tooltip.bottom="'Ver detalles'"
                 />
-                <Tag
-                  v-else
-                  :value="statusOptions.find(opt => opt.value === getLeadStatus(data))?.label || 'Sin estado'"
-                  :severity="getSeverity(getLeadStatus(data))"
-                  class="cursor-pointer w-full text-center"
-                  @click="startEditing(data)"
-                />
-              </div>
-            </template>
-          </Column>
-          <Column header="Acciones">
-            <template #body="slotProps">
-              <Button icon="pi pi-eye" class="p-button-rounded p-button-text p-button-sm"
-                      @click="viewLead(slotProps.data)" />
-            </template>
-          </Column>
-        </DataTable>
+              </template>
+            </Column>
+          </DataTable>
+        </div>
       </div>
 
       <Dialog v-model:visible="showModal" modal header="Detalles del Lead"
@@ -192,8 +217,16 @@ const getSeverity = (status) => {
   padding: 1.5rem;
   transition: transform 0.2s ease;
 }
-
 .dashboard-card:hover {
   transform: translateY(-2px);
+}
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background: #f3f4f6;
+  z-index: 1;
+}
+.p-datatable .p-datatable-tbody > tr:hover {
+  background: #e0edfa !important;
 }
 </style>

@@ -24,6 +24,7 @@ import 'primevue/resources/themes/lara-light-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 import 'primeflex/primeflex.css'
+import './assets/main.css'
 
 // App
 const app = createApp(App)
