@@ -1,24 +1,7 @@
-@import './base.css';
-@import 'primeflex/primeflex.css';
-
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-body #app {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #ffffff 0%, #8ec5fc 100%);
-  background-repeat: no-repeat;
-}
-
-#app {
-  width: 100%;
-  display: flex;
-  justify-content: center;
+.active-link {
+    background-color: #bdd6f8 !important;
+    color: #1e40af !important;
+    font-weight: 600 !important;
+    /* border-left: 4px solid #3b82f6 !important; */
+    border-radius: 15px !important;
 }
